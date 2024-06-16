@@ -80,12 +80,21 @@ def login(username: str, password: str) -> tuple:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
 
-    # authenticate as service if credentials provided, anonymously otherwise
-    if BIND_DN is not None and BIND_DN != '':
+    # sanitize username (we might need it already in the next block to attempt a self-bind)
+    username_sanitized = escape_filter_chars(username)
+
+    if BIND_DN and "<username>" in BIND_DN:
+        # Authenticate using the provided user credentials
+        service_user = BIND_DN.replace("<username>", username_sanitized)
+        service_pass = password
+        service_auth = SIMPLE
+    elif BIND_DN:
+        # Authenticate with dedicated bind credentials
         service_user = BIND_DN
         service_pass = BIND_PASSWORD
         service_auth = SIMPLE
     else:
+        # Use anonymous auth
         service_user = None
         service_pass = None
         service_auth = ANONYMOUS
@@ -102,7 +111,6 @@ def login(username: str, password: str) -> tuple:
         raise LDAPConnectionError({"error_message": error})
 
     # search for user-provided login
-    username_sanitized = escape_filter_chars(username)
     search_filter = '(|(%s=%s)(%s=%s))' % (
         USERNAME_ATTRIBUTE, username_sanitized, EMAIL_ATTRIBUTE, username_sanitized)
     if SEARCH_FILTER_ADDITIONAL:
