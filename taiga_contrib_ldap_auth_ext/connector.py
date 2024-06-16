@@ -89,7 +89,7 @@ def _get_auth_details(username_sanitized: str) -> dict[str, Any]:
     }
 
 
-def login(username: str, password: str) -> tuple[str, str, str]:
+def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     """
     Connect to LDAP server, perform a search and attempt a bind.
 
@@ -99,13 +99,12 @@ def login(username: str, password: str) -> tuple[str, str, str]:
     Can raise `exc.LDAPUserLoginError` exceptions if the
     login to LDAP fails.
 
-    :param username: a possibly unsanitized username
+    :param username_or_email: a possibly unsanitized username or email
     :param password: a possibly unsanitized password
     :returns: tuple (username, email, full_name)
-
     """
     server = _get_server()    
-    username_sanitized = escape_filter_chars(username)
+    username_or_email_sanitized = escape_filter_chars(username_or_email)
 
     auto_bind = AUTO_BIND_NO_TLS
     if START_TLS:
@@ -113,14 +112,14 @@ def login(username: str, password: str) -> tuple[str, str, str]:
 
     try:
         c = Connection(server, auto_bind=auto_bind, client_strategy=SYNC, check_names=True,
-                       **_get_auth_details(username_sanitized))
+                       **_get_auth_details(username_or_email_sanitized))
     except Exception as e:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
 
     # search for user-provided login
     search_filter = '(|(%s=%s)(%s=%s))' % (
-        USERNAME_ATTRIBUTE, username_sanitized, EMAIL_ATTRIBUTE, username_sanitized)
+        USERNAME_ATTRIBUTE, username_or_email_sanitized, EMAIL_ATTRIBUTE, username_or_email_sanitized)
     if SEARCH_FILTER_ADDITIONAL:
         search_filter = '(&%s%s)' % (search_filter, SEARCH_FILTER_ADDITIONAL)
     try:
