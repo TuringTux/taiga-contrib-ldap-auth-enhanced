@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any
+
 from ldap3 import Server, Connection, AUTO_BIND_NO_TLS, AUTO_BIND_TLS_BEFORE_BIND, ANONYMOUS, SIMPLE, SYNC, SUBTREE, NONE
 
 from django.conf import settings
@@ -48,6 +50,45 @@ TLS_CERTS = getattr(settings, "LDAP_TLS_CERTS", "")
 START_TLS = getattr(settings, "LDAP_START_TLS", False)
 
 
+def _get_server() -> Server:
+    """
+    Connect to an LDAP server (no authentication yet).
+    """
+    tls = TLS_CERTS or None
+    use_ssl = SERVER.lower().startswith("ldaps://")
+
+    try:
+        server = Server(SERVER, port=PORT, get_info=NONE,
+                        use_ssl=use_ssl, tls=tls)
+    except Exception as e:
+        error = "Error connecting to LDAP server: %s" % e
+        raise LDAPConnectionError({"error_message": error})
+
+
+def _get_auth_details(username_sanitized: str) -> dict[str, Any]:
+    if BIND_DN and "<username>" in BIND_DN:
+        # Authenticate using the provided user credentials
+        user = BIND_DN.replace("<username>", username_sanitized)
+        password = password
+        authentication = SIMPLE
+    elif BIND_DN:
+        # Authenticate with dedicated bind credentials
+        user = BIND_DN
+        password = BIND_PASSWORD
+        authentication = SIMPLE
+    else:
+        # Use anonymous auth
+        user = None
+        password = None
+        authentication = ANONYMOUS
+
+    return {
+        "user": user,
+        "password": password,
+        "authentication": authentication
+    }
+
+
 def login(username: str, password: str) -> tuple:
     """
     Connect to LDAP server, perform a search and attempt a bind.
@@ -63,41 +104,8 @@ def login(username: str, password: str) -> tuple:
     :returns: tuple (username, email, full_name)
 
     """
-
-    tls = None
-    if TLS_CERTS:
-        tls = TLS_CERTS
-
-    # connect to the LDAP server
-    if SERVER.lower().startswith("ldaps://"):
-        use_ssl = True
-    else:
-        use_ssl = False
-    try:
-        server = Server(SERVER, port=PORT, get_info=NONE,
-                        use_ssl=use_ssl, tls=tls)
-    except Exception as e:
-        error = "Error connecting to LDAP server: %s" % e
-        raise LDAPConnectionError({"error_message": error})
-
-    # sanitize username (we might need it already in the next block to attempt a self-bind)
+    server = _get_server()    
     username_sanitized = escape_filter_chars(username)
-
-    if BIND_DN and "<username>" in BIND_DN:
-        # Authenticate using the provided user credentials
-        service_user = BIND_DN.replace("<username>", username_sanitized)
-        service_pass = password
-        service_auth = SIMPLE
-    elif BIND_DN:
-        # Authenticate with dedicated bind credentials
-        service_user = BIND_DN
-        service_pass = BIND_PASSWORD
-        service_auth = SIMPLE
-    else:
-        # Use anonymous auth
-        service_user = None
-        service_pass = None
-        service_auth = ANONYMOUS
 
     auto_bind = AUTO_BIND_NO_TLS
     if START_TLS:
@@ -105,7 +113,7 @@ def login(username: str, password: str) -> tuple:
 
     try:
         c = Connection(server, auto_bind=auto_bind, client_strategy=SYNC, check_names=True,
-                       user=service_user, password=service_pass, authentication=service_auth)
+                       **_get_auth_details(username_sanitized))
     except Exception as e:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
