@@ -89,7 +89,7 @@ def _get_auth_details(username_sanitized: str) -> dict[str, Any]:
     }
 
 
-def login(username: str, password: str) -> tuple:
+def login(username: str, password: str) -> tuple[str, str, str]:
     """
     Connect to LDAP server, perform a search and attempt a bind.
 
