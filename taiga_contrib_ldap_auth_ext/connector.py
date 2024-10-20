@@ -58,8 +58,7 @@ def _get_server() -> Server:
     use_ssl = SERVER.lower().startswith("ldaps://")
 
     try:
-        server = Server(SERVER, port=PORT, get_info=NONE,
-                        use_ssl=use_ssl, tls=tls)
+        return Server(SERVER, port=PORT, get_info=NONE, use_ssl=use_ssl, tls=tls)
     except Exception as e:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
