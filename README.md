@@ -163,10 +163,11 @@ If `LDAP_BIND_DN` is not specified or blank, an anonymous bind is attempted.
 
 It is recommended to limit the service account and only allow it to read and search the LDAP structure (no write or other LDAP access). The credentials should also not be used for any other account on the network. This minimizes the damage in cases of a successful LDAP injection or if you ever accidentially give someone access to the configuration file (e.g. by committing it into version control or having misconfigured permissions). Use a suitably strong, ideally randomly generated password.
 
-You can also use the credentials supplied by the user to bind to LDAP (eliminating the need for a dedicated LDAP service account). To do so, do the following two things:
+You can also use the credentials supplied by the user to bind to LDAP (eliminating the need for a dedicated LDAP service account). To do so, do the following three things:
 
 1. Set `LDAP_BIND_WITH_USER_PROVIDED_CREDENTIALS = True`
 2. Insert the placeholder `<username>` inside `LDAP_BIND_DN`, e.g. like this: `"CN=<username>,OU=DevTeam,DC=example,DC=com"`.
+3. Remove `LDAP_BIND_PASSWORD` (it will not be used)
 
 Taiga will then determine the LDAP bind user by replacing `<username>` with the user-specified username, and bind using the user-specified password.
 
