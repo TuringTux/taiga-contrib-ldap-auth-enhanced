@@ -13,7 +13,17 @@
 
 from typing import Any
 
-from ldap3 import Server, Connection, AUTO_BIND_NO_TLS, AUTO_BIND_TLS_BEFORE_BIND, ANONYMOUS, SIMPLE, SYNC, SUBTREE, NONE
+from ldap3 import (
+    Server,
+    Connection,
+    AUTO_BIND_NO_TLS,
+    AUTO_BIND_TLS_BEFORE_BIND,
+    ANONYMOUS,
+    SIMPLE,
+    SYNC,
+    SUBTREE,
+    NONE,
+)
 
 from django.conf import settings
 from ldap3.utils.conv import escape_filter_chars
@@ -37,11 +47,11 @@ SERVER = getattr(settings, "LDAP_SERVER", "localhost")
 PORT = getattr(settings, "LDAP_PORT", "389")
 
 SEARCH_BASE = getattr(settings, "LDAP_SEARCH_BASE", "")
-SEARCH_FILTER_ADDITIONAL = getattr(
-    settings, "LDAP_SEARCH_FILTER_ADDITIONAL", "")
+SEARCH_FILTER_ADDITIONAL = getattr(settings, "LDAP_SEARCH_FILTER_ADDITIONAL", "")
 BIND_DN = getattr(settings, "LDAP_BIND_DN", "")
 BIND_WITH_USER_PROVIDED_CREDENTIALS = getattr(
-    settings, "LDAP_BIND_WITH_USER_PROVIDED_CREDENTIALS", False)
+    settings, "LDAP_BIND_WITH_USER_PROVIDED_CREDENTIALS", False
+)
 BIND_PASSWORD = getattr(settings, "LDAP_BIND_PASSWORD", "")
 
 USERNAME_ATTRIBUTE = getattr(settings, "LDAP_USERNAME_ATTRIBUTE", "uid")
@@ -67,7 +77,9 @@ def _get_server() -> Server:
         raise LDAPConnectionError({"error_message": error})
 
 
-def _get_auth_details(username_sanitized: str, user_provided_password: str) -> dict[str, Any]:
+def _get_auth_details(
+    username_sanitized: str, user_provided_password: str
+) -> dict[str, Any]:
     if BIND_WITH_USER_PROVIDED_CREDENTIALS:
         # Authenticate using the provided user credentials
         user = BIND_DN.replace("<username>", username_sanitized)
@@ -84,11 +96,7 @@ def _get_auth_details(username_sanitized: str, user_provided_password: str) -> d
         password = None
         authentication = ANONYMOUS
 
-    return {
-        "user": user,
-        "password": password,
-        "authentication": authentication
-    }
+    return {"user": user, "password": password, "authentication": authentication}
 
 
 def _extract_user(response: Any) -> Any:
@@ -96,7 +104,7 @@ def _extract_user(response: Any) -> Any:
 
     Throw an error if there is not exactly 1 user in the response."""
 
-    users_found = [r for r in response if 'raw_attributes' in r and 'dn' in r]
+    users_found = [r for r in response if "raw_attributes" in r and "dn" in r]
 
     # stop if no search results
     if not users_found:
@@ -105,7 +113,8 @@ def _extract_user(response: Any) -> Any:
     # handle multiple matches
     if len(users_found) > 1:
         raise LDAPUserLoginError(
-            {"error_message": "LDAP login could not be determined."})
+            {"error_message": "LDAP login could not be determined."}
+        )
 
     return users_found[0]
 
@@ -119,7 +128,7 @@ def _extract_profile(raw_attributes: Any) -> tuple[str, str, str]:
             raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
 
     return (
-        raw_attributes.get(attribute)[0].decode('utf-8')
+        raw_attributes.get(attribute)[0].decode("utf-8")
         for attribute in PROFILE_ATTRIBUTES
     )
 
@@ -143,8 +152,13 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     auto_bind = AUTO_BIND_TLS_BEFORE_BIND if START_TLS else AUTO_BIND_NO_TLS
 
     try:
-        c = Connection(server, auto_bind=auto_bind, client_strategy=SYNC, check_names=True,
-                       **_get_auth_details(username_or_email_sanitized, password))
+        c = Connection(
+            server,
+            auto_bind=auto_bind,
+            client_strategy=SYNC,
+            check_names=True,
+            **_get_auth_details(username_or_email_sanitized, password),
+        )
     except Exception as e:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
@@ -154,25 +168,33 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     if SEARCH_FILTER_ADDITIONAL:
         search_filter = f"(&{search_filter}{SEARCH_FILTER_ADDITIONAL})"
     try:
-        c.search(search_base=SEARCH_BASE,
-                 search_filter=search_filter,
-                 search_scope=SUBTREE,
-                 attributes=PROFILE_ATTRIBUTES,
-                 paged_size=5)
+        c.search(
+            search_base=SEARCH_BASE,
+            search_filter=search_filter,
+            search_scope=SUBTREE,
+            attributes=PROFILE_ATTRIBUTES,
+            paged_size=5,
+        )
     except Exception as e:
         error = "LDAP login incorrect: %s" % e
         raise LDAPUserLoginError({"error_message": error})
 
     user = _extract_user(c.response)
-    raw_attributes = user.get('raw_attributes')
+    raw_attributes = user.get("raw_attributes")
     user_profile = _extract_profile(raw_attributes)
 
     # attempt LDAP bind
     try:
-        dn = str(bytes(user.get('dn'), 'utf-8'), encoding='utf-8')
-        Connection(server, auto_bind=auto_bind, client_strategy=SYNC,
-                   check_names=True, authentication=SIMPLE,
-                   user=dn, password=password)
+        dn = str(bytes(user.get("dn"), "utf-8"), encoding="utf-8")
+        Connection(
+            server,
+            auto_bind=auto_bind,
+            client_strategy=SYNC,
+            check_names=True,
+            authentication=SIMPLE,
+            user=dn,
+            password=password,
+        )
     except Exception as e:
         error = "LDAP bind failed: %s" % e
         raise LDAPUserLoginError({"error_message": error})
