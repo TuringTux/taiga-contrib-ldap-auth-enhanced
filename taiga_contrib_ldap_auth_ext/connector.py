@@ -109,9 +109,8 @@ def _extract_user(response: Any) -> Any:
     return users_found[0]
 
 
-def _ensure_has_required_attributes(user: Any) -> None:
+def _ensure_has_required_attributes(raw_attributes: Any) -> None:
     """Ensure the user object has the required mandatory attributes)"""
-    raw_attributes = user.get('raw_attributes')
     if not (raw_attributes.get(USERNAME_ATTRIBUTE) and
             raw_attributes.get(EMAIL_ATTRIBUTE) and
             raw_attributes.get(FULL_NAME_ATTRIBUTE)):
@@ -159,7 +158,9 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPUserLoginError({"error_message": error})
 
     user = _extract_user(c.response)
-    _ensure_has_required_attributes(user)
+
+    raw_attributes = user.get('raw_attributes')
+    _ensure_has_required_attributes(raw_attributes)
 
     # attempt LDAP bind
     username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
