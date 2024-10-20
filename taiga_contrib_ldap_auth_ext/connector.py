@@ -78,6 +78,20 @@ def _get_server() -> Server:
 def _get_auth_details(
     username_sanitized: str, user_provided_password: str
 ) -> dict[str, Any]:
+    """
+    Return a dictionary with LDAP auth credentials.
+
+    The dictionary contains the following fields:
+
+    - "user": DN of the user to bind with
+    - "password": Password of the user to bind with
+    - "authentication": Bind method
+
+    The bind method may be SIMPLE or ANONYMOUS.
+    The user to bind with may be a dedicated bind user, or a dynamically
+    determined DN from the provided user credentials.
+    """
+
     if BIND_WITH_USER_PROVIDED_CREDENTIALS:
         # Authenticate using the provided user credentials
         user = BIND_DN.replace("<username>", username_sanitized)
