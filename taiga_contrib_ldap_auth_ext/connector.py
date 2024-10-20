@@ -138,7 +138,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     :param password: a possibly unsanitized password
     :returns: tuple (username, email, full_name)
     """
-    server = _get_server()    
+    server = _get_server()
     username_or_email_sanitized = escape_filter_chars(username_or_email)
     auto_bind = AUTO_BIND_TLS_BEFORE_BIND if START_TLS else AUTO_BIND_NO_TLS
 
