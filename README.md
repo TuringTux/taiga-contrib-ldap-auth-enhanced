@@ -27,9 +27,6 @@ If you were to start Taiga now, it would not pull the `taiga-back` directly from
 
 #### `custom-back/Dockerfile`
 
-<details>
-<summary>Click here to expand</summary>
-
 ```Dockerfile
 FROM taigaio/taiga-back:latest
 
@@ -39,6 +36,9 @@ RUN cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py 
 
 RUN pip install taiga-contrib-ldap-auth-ext
 ```
+
+<details>
+<summary>Click here to expand explanation</summary>
 
 The statements in the Dockerfile have the following effect:
 
@@ -110,12 +110,9 @@ Change the `loginFormType` setting to `"ldap"` in `dist/conf.json`:
 
 ### `taiga-back` configuration
 
-If you use the installation with Docker, put the following contents in the file `custom-back/config.append.py`. 
+If you use the installation with Docker, put something similar to the following in the file `custom-back/config.append.py`. 
 
-If you use the installation without Docker, append the following contents to the file `settings/common.py` (for Taiga >5.0) or `settings/local.py` (for Taiga ≤5.0). 
-
-<details>
-<summary>Click here to expand</summary>
+If you use the installation without Docker, append something similar to the following to the file `settings/common.py` (for Taiga >5.0) or `settings/local.py` (for Taiga ≤5.0):
 
 ```python
 INSTALLED_APPS += ["taiga_contrib_ldap_auth_ext"]
@@ -139,7 +136,10 @@ LDAP_SAVE_LOGIN_PASSWORD = False
 LDAP_MAP_USERNAME_TO_UID = None
 ```
 
-Change the following fields matching your setup:
+_You need to change most of the values to match your setup._
+
+<details>
+<summary>Click here to expand configuration explanation</summary>
 
 **`LDAP_SERVER` and `LDAP_PORT`:** You will definitely have to change the server URL. If possible, try to keep the `ldaps://` to use a secure connection. The port can likely stay as is, unless...
 
@@ -185,7 +185,7 @@ Taiga will then determine the LDAP bind user by replacing `<username>` with the 
 #### Additional configuration options
 
 <details>
-<summary>Click here to expand</summary>
+<summary>Click here to expand additional configuration options</summary>
 
 By default, Taiga will fall back to `normal` authentication if LDAP authentication fails. Add the following line to disable this and only allow LDAP login:
 
