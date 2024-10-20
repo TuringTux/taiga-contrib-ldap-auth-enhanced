@@ -134,10 +134,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     """
     server = _get_server()    
     username_or_email_sanitized = escape_filter_chars(username_or_email)
-
-    auto_bind = AUTO_BIND_NO_TLS
-    if START_TLS:
-        auto_bind = AUTO_BIND_TLS_BEFORE_BIND
+    auto_bind = AUTO_BIND_TLS_BEFORE_BIND if START_TLS else AUTO_BIND_NO_TLS
 
     try:
         c = Connection(server, auto_bind=auto_bind, client_strategy=SYNC, check_names=True,
