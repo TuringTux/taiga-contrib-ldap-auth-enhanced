@@ -90,6 +90,21 @@ def _get_auth_details(username_sanitized: str, user_provided_password: str) -> d
     }
 
 
+def _get_users_found(response: Any) -> list[Any]:
+    users_found = [r for r in c.response if 'raw_attributes' in r and 'dn' in r]
+
+    # stop if no search results
+    if not users_found:
+        raise LDAPUserLoginError({"error_message": "LDAP login not found"})
+
+    # handle multiple matches
+    if len(users_found) > 1:
+        raise LDAPUserLoginError(
+            {"error_message": "LDAP login could not be determined."})
+
+    return users_found
+
+
 def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     """
     Connect to LDAP server, perform a search and attempt a bind.
@@ -135,18 +150,10 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPUserLoginError({"error_message": error})
 
     # we are only interested in user objects in the response
-    c.response = [r for r in c.response if 'raw_attributes' in r and 'dn' in r]
-    # stop if no search results
-    if not c.response:
-        raise LDAPUserLoginError({"error_message": "LDAP login not found"})
-
-    # handle multiple matches
-    if len(c.response) > 1:
-        raise LDAPUserLoginError(
-            {"error_message": "LDAP login could not be determined."})
+    users_found = _get_users_found(c.response)
 
     # handle missing mandatory attributes
-    raw_attributes = c.response[0].get('raw_attributes')
+    raw_attributes = users_found[0].get('raw_attributes')
     if not (raw_attributes.get(USERNAME_ATTRIBUTE) and
             raw_attributes.get(EMAIL_ATTRIBUTE) and
             raw_attributes.get(FULL_NAME_ATTRIBUTE)):
@@ -157,7 +164,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
     email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
     full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
     try:
-        dn = str(bytes(c.response[0].get('dn'), 'utf-8'), encoding='utf-8')
+        dn = str(bytes(users_found[0].get('dn'), 'utf-8'), encoding='utf-8')
         Connection(server, auto_bind=auto_bind, client_strategy=SYNC,
                    check_names=True, authentication=SIMPLE,
                    user=dn, password=password)
