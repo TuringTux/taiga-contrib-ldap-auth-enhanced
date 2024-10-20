@@ -147,10 +147,9 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPConnectionError({"error_message": error})
 
     # search for user-provided login
-    search_filter = '(|(%s=%s)(%s=%s))' % (
-        USERNAME_ATTRIBUTE, username_or_email_sanitized, EMAIL_ATTRIBUTE, username_or_email_sanitized)
+    search_filter = f"(|({USERNAME_ATTRIBUTE}={username_or_email_sanitized})({EMAIL_ATTRIBUTE}={username_or_email_sanitized}))"
     if SEARCH_FILTER_ADDITIONAL:
-        search_filter = '(&%s%s)' % (search_filter, SEARCH_FILTER_ADDITIONAL)
+        search_filter = f"(&{search_filter}{SEARCH_FILTER_ADDITIONAL})"
     try:
         c.search(search_base=SEARCH_BASE,
                  search_filter=search_filter,
