@@ -169,7 +169,7 @@ You can also use the credentials provided by the user to bind to LDAP (eliminati
 2. Insert the placeholder `<username>` inside `LDAP_BIND_DN`, e.g. like this: `"CN=<username>,OU=DevTeam,DC=example,DC=com"`.
 3. Remove `LDAP_BIND_PASSWORD` (it will not be used)
 
-Taiga will then determine the LDAP bind user by replacing `<username>` with the user-specified username, and bind using the user-specified password.
+Taiga will then determine the LDAP bind user by replacing `<username>` with the user-provided username, and bind using the user-provided password.
 
 **`LDAP_SEARCH_BASE`**: The subtree where the users are located.
 
