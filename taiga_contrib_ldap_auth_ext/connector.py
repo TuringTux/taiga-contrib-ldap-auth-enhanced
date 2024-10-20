@@ -177,5 +177,5 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         error = "LDAP bind failed: %s" % e
         raise LDAPUserLoginError({"error_message": error})
 
-    # Return user details so that they can be used by Taiga (e.g., to set or update the users full name on the UI)
+    # Return user details so that they can be used by Taiga (e.g., to set or update the users full name)
     return user_profile
