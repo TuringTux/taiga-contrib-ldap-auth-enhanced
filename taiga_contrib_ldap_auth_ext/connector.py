@@ -131,8 +131,8 @@ def _extract_user(response: Any) -> Any:
     return users_found[0]
 
 
-def _extract_profile(raw_attributes: Any) -> tuple[str, str, str]:
-    """Extract the profile from the given user's attributes.
+def _extract_profile(user: Any) -> tuple[str, str, str]:
+    """Extract the profile from the given user.
 
     The profile consists of the following attributes:
 
@@ -141,6 +141,8 @@ def _extract_profile(raw_attributes: Any) -> tuple[str, str, str]:
     - Full name
 
     Throw an error if the attributes are not all set."""
+    raw_attributes = user.get("raw_attributes")
+
     for attribute in PROFILE_ATTRIBUTES:
         if not raw_attributes.get(attribute):
             raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
@@ -198,8 +200,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPUserLoginError({"error_message": error})
 
     user = _extract_user(c.response)
-    raw_attributes = user.get("raw_attributes")
-    user_profile = _extract_profile(raw_attributes)
+    user_profile = _extract_profile(user)
 
     # attempt LDAP bind
     try:
