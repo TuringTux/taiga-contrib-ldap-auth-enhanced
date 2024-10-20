@@ -147,7 +147,7 @@ def _extract_profile(user: Any) -> Tuple[str, str, str]:
         if not raw_attributes.get(attribute):
             raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
 
-    return (
+    return tuple(
         raw_attributes.get(attribute)[0].decode("utf-8")
         for attribute in PROFILE_ATTRIBUTES
     )
