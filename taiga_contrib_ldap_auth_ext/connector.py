@@ -40,6 +40,7 @@ SEARCH_BASE = getattr(settings, "LDAP_SEARCH_BASE", "")
 SEARCH_FILTER_ADDITIONAL = getattr(
     settings, "LDAP_SEARCH_FILTER_ADDITIONAL", "")
 BIND_DN = getattr(settings, "LDAP_BIND_DN", "")
+BIND_WITH_USER_PROVIDED_CREDENTIALS = BIND_DN and "<username>" in BIND_DN
 BIND_PASSWORD = getattr(settings, "LDAP_BIND_PASSWORD", "")
 
 USERNAME_ATTRIBUTE = getattr(settings, "LDAP_USERNAME_ATTRIBUTE", "uid")
@@ -65,7 +66,7 @@ def _get_server() -> Server:
 
 
 def _get_auth_details(username_sanitized: str) -> dict[str, Any]:
-    if BIND_DN and "<username>" in BIND_DN:
+    if BIND_WITH_USER_PROVIDED_CREDENTIALS:
         # Authenticate using the provided user credentials
         user = BIND_DN.replace("<username>", username_sanitized)
         password = password
