@@ -158,14 +158,10 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPUserLoginError({"error_message": error})
 
     user = _extract_user(c.response)
-
     raw_attributes = user.get('raw_attributes')
     _ensure_has_required_attributes(raw_attributes)
 
     # attempt LDAP bind
-    username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
-    email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
-    full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
     try:
         dn = str(bytes(user.get('dn'), 'utf-8'), encoding='utf-8')
         Connection(server, auto_bind=auto_bind, client_strategy=SYNC,
@@ -175,6 +171,9 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         error = "LDAP bind failed: %s" % e
         raise LDAPUserLoginError({"error_message": error})
 
-    # LDAP binding successful, but some values might have changed, or
-    # this is the user's first login, so return them
+    # Return user details so that they can be used by Taiga (e.g., to set or update the users full name on the UI)
+    username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
+    email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
+    full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
+
     return (username, email, full_name)
