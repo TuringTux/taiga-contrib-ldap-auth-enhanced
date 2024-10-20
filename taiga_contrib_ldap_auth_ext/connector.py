@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any
+from typing import Any, Dict, Tuple
 
 from ldap3 import (
     Server,
@@ -77,7 +77,7 @@ def _get_server() -> Server:
 
 def _get_auth_details(
     username_sanitized: str, user_provided_password: str
-) -> dict[str, Any]:
+) -> Dict[str, Any]:
     """
     Return a dictionary with LDAP auth credentials.
 
@@ -131,7 +131,7 @@ def _extract_user(response: Any) -> Any:
     return users_found[0]
 
 
-def _extract_profile(user: Any) -> tuple[str, str, str]:
+def _extract_profile(user: Any) -> Tuple[str, str, str]:
     """Extract the profile from the given user.
 
     The profile consists of the following attributes:
@@ -153,7 +153,7 @@ def _extract_profile(user: Any) -> tuple[str, str, str]:
     )
 
 
-def login(username_or_email: str, password: str) -> tuple[str, str, str]:
+def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
     """
     Connect to LDAP server, perform a search and attempt a bind.
 
