@@ -47,6 +47,7 @@ BIND_PASSWORD = getattr(settings, "LDAP_BIND_PASSWORD", "")
 USERNAME_ATTRIBUTE = getattr(settings, "LDAP_USERNAME_ATTRIBUTE", "uid")
 EMAIL_ATTRIBUTE = getattr(settings, "LDAP_EMAIL_ATTRIBUTE", "mail")
 FULL_NAME_ATTRIBUTE = getattr(settings, "LDAP_FULL_NAME_ATTRIBUTE", "displayName")
+PROFILE_ATTRIBUTES = [USERNAME_ATTRIBUTE, EMAIL_ATTRIBUTE, FULL_NAME_ATTRIBUTE]
 
 TLS_CERTS = getattr(settings, "LDAP_TLS_CERTS", "")
 START_TLS = getattr(settings, "LDAP_START_TLS", False)
@@ -109,21 +110,18 @@ def _extract_user(response: Any) -> Any:
     return users_found[0]
 
 
-def _extract_profile_data(raw_attributes: Any) -> tuple[str, str, str]:
+def _extract_profile(raw_attributes: Any) -> tuple[str, str, str]:
     """Extract the profile data, i.e. username, e-mail and full name from the given user's attributes.
-    
+
     Throw an error if the attributes are not all set."""
+    for attribute in PROFILE_ATTRIBUTES:
+        if not raw_attributes.get(attribute):
+            raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
 
-    if not (raw_attributes.get(USERNAME_ATTRIBUTE) and
-            raw_attributes.get(EMAIL_ATTRIBUTE) and
-            raw_attributes.get(FULL_NAME_ATTRIBUTE)):
-        raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
-
-    username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
-    email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
-    full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
-
-    return (username, email, full_name)
+    return (
+        raw_attributes.get(attribute)[0].decode('utf-8')
+        for attribute in PROFILE_ATTRIBUTES
+    )
 
 
 def login(username_or_email: str, password: str) -> tuple[str, str, str]:
@@ -159,8 +157,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         c.search(search_base=SEARCH_BASE,
                  search_filter=search_filter,
                  search_scope=SUBTREE,
-                 attributes=[USERNAME_ATTRIBUTE,
-                             EMAIL_ATTRIBUTE, FULL_NAME_ATTRIBUTE],
+                 attributes=PROFILE_ATTRIBUTES,
                  paged_size=5)
     except Exception as e:
         error = "LDAP login incorrect: %s" % e
@@ -168,7 +165,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
 
     user = _extract_user(c.response)
     raw_attributes = user.get('raw_attributes')
-    user_profile = _extract_profile_data(raw_attributes)
+    user_profile = _extract_profile(raw_attributes)
 
     # attempt LDAP bind
     try:
