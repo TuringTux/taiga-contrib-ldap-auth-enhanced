@@ -109,12 +109,21 @@ def _extract_user(response: Any) -> Any:
     return users_found[0]
 
 
-def _ensure_has_required_attributes(raw_attributes: Any) -> None:
-    """Ensure the user object has the required mandatory attributes)"""
+def _extract_profile_data(raw_attributes: Any) -> tuple[str, str, str]:
+    """Extract the profile data, i.e. username, e-mail and full name from the given user's attributes.
+    
+    Throw an error if the attributes are not all set."""
+
     if not (raw_attributes.get(USERNAME_ATTRIBUTE) and
             raw_attributes.get(EMAIL_ATTRIBUTE) and
             raw_attributes.get(FULL_NAME_ATTRIBUTE)):
         raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
+
+    username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
+    email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
+    full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
+
+    return (username, email, full_name)
 
 
 def login(username_or_email: str, password: str) -> tuple[str, str, str]:
@@ -159,7 +168,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
 
     user = _extract_user(c.response)
     raw_attributes = user.get('raw_attributes')
-    _ensure_has_required_attributes(raw_attributes)
+    user_profile = _extract_profile_data(raw_attributes)
 
     # attempt LDAP bind
     try:
@@ -172,8 +181,4 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         raise LDAPUserLoginError({"error_message": error})
 
     # Return user details so that they can be used by Taiga (e.g., to set or update the users full name on the UI)
-    username = raw_attributes.get(USERNAME_ATTRIBUTE)[0].decode('utf-8')
-    email = raw_attributes.get(EMAIL_ATTRIBUTE)[0].decode('utf-8')
-    full_name = raw_attributes.get(FULL_NAME_ATTRIBUTE)[0].decode('utf-8')
-
-    return (username, email, full_name)
+    return user_profile
