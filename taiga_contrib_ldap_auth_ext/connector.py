@@ -66,11 +66,11 @@ def _get_server() -> Server:
         raise LDAPConnectionError({"error_message": error})
 
 
-def _get_auth_details(username_sanitized: str) -> dict[str, Any]:
+def _get_auth_details(username_sanitized: str, user_provided_password: str) -> dict[str, Any]:
     if BIND_WITH_USER_PROVIDED_CREDENTIALS:
         # Authenticate using the provided user credentials
         user = BIND_DN.replace("<username>", username_sanitized)
-        password = password
+        password = user_provided_password
         authentication = SIMPLE
     elif BIND_DN:
         # Authenticate with dedicated bind credentials
@@ -113,7 +113,7 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
 
     try:
         c = Connection(server, auto_bind=auto_bind, client_strategy=SYNC, check_names=True,
-                       **_get_auth_details(username_or_email_sanitized))
+                       **_get_auth_details(username_or_email_sanitized, password))
     except Exception as e:
         error = "Error connecting to LDAP server: %s" % e
         raise LDAPConnectionError({"error_message": error})
