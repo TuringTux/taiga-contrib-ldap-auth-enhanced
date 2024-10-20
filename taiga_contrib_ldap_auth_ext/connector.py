@@ -64,9 +64,7 @@ START_TLS = getattr(settings, "LDAP_START_TLS", False)
 
 
 def _get_server() -> Server:
-    """
-    Connect to an LDAP server (no authentication yet).
-    """
+    """Connect to an LDAP server (no authentication yet)."""
     tls = TLS_CERTS or None
     use_ssl = SERVER.lower().startswith("ldaps://")
 
@@ -120,7 +118,13 @@ def _extract_user(response: Any) -> Any:
 
 
 def _extract_profile(raw_attributes: Any) -> tuple[str, str, str]:
-    """Extract the profile data, i.e. username, e-mail and full name from the given user's attributes.
+    """Extract the profile from the given user's attributes.
+
+    The profile consists of the following attributes:
+
+    - Username
+    - Email
+    - Full name
 
     Throw an error if the attributes are not all set."""
     for attribute in PROFILE_ATTRIBUTES:
@@ -199,5 +203,6 @@ def login(username_or_email: str, password: str) -> tuple[str, str, str]:
         error = "LDAP bind failed: %s" % e
         raise LDAPUserLoginError({"error_message": error})
 
-    # Return user details so that they can be used by Taiga (e.g., to set or update the users full name)
+    # Return user profile so that it can be used by Taiga,
+    # e.g., to set the user's full name in the database
     return user_profile
