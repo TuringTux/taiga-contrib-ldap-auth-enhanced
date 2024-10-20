@@ -96,7 +96,7 @@ def _extract_user(response: Any) -> Any:
 
     Throw an error if there is not exactly 1 user in the response."""
 
-    users_found = [r for r in c.response if 'raw_attributes' in r and 'dn' in r]
+    users_found = [r for r in response if 'raw_attributes' in r and 'dn' in r]
 
     # stop if no search results
     if not users_found:
