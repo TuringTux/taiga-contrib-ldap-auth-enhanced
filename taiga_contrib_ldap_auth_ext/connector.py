@@ -91,7 +91,6 @@ def _get_auth_details(
     The user to bind with may be a dedicated bind user, or a dynamically
     determined DN from the provided user credentials.
     """
-
     if BIND_WITH_USER_PROVIDED_CREDENTIALS:
         # Authenticate using the provided user credentials
         user = BIND_DN.replace("<username>", username_sanitized)
@@ -112,10 +111,11 @@ def _get_auth_details(
 
 
 def _extract_user(response: Any) -> Any:
-    """Extract a single user object from the LDAP response.
+    """
+    Extract a single user object from the LDAP response.
 
-    Throw an error if there is not exactly 1 user in the response."""
-
+    Throw an error if there is not exactly 1 user in the response.
+    """
     users_found = [r for r in response if "raw_attributes" in r and "dn" in r]
 
     # stop if no search results
@@ -132,7 +132,8 @@ def _extract_user(response: Any) -> Any:
 
 
 def _extract_profile(user: Any) -> Tuple[str, str, str]:
-    """Extract the profile from the given user.
+    """
+    Extract the profile from the given user.
 
     The profile consists of the following attributes:
 
@@ -140,7 +141,8 @@ def _extract_profile(user: Any) -> Tuple[str, str, str]:
     - Email
     - Full name
 
-    Throw an error if the attributes are not all set."""
+    Throw an error if the attributes are not all set.
+    """
     raw_attributes = user.get("raw_attributes")
 
     for attribute in PROFILE_ATTRIBUTES:
