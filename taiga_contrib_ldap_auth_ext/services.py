@@ -57,7 +57,7 @@ def ldap_login_func(request):
 
     try:
         username, email, full_name = connector.login(
-            username=login_input, password=password_input)
+            username_or_email=login_input, password=password_input)
     except connector.LDAPUserLoginError as ldap_error:
         # If no fallback authentication is specified, raise the original LDAP error
         if not FALLBACK:
