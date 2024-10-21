@@ -71,7 +71,7 @@ def _get_server() -> Server:
     try:
         return Server(SERVER, port=PORT, get_info=NONE, use_ssl=use_ssl, tls=tls)
     except Exception as e:
-        error = "Error connecting to LDAP server: %s" % e
+        error = f"Error connecting to LDAP server: {e}"
         raise LDAPConnectionError({"error_message": error})
 
 
@@ -182,7 +182,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             **_get_auth_details(username_or_email_sanitized, password),
         )
     except Exception as e:
-        error = "Error connecting to LDAP server: %s" % e
+        error = f"Error connecting to LDAP server: {e}"
         raise LDAPConnectionError({"error_message": error})
 
     # search for user-provided login
@@ -198,7 +198,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             paged_size=5,
         )
     except Exception as e:
-        error = "LDAP login incorrect: %s" % e
+        error = f"LDAP login incorrect: {e}"
         raise LDAPUserLoginError({"error_message": error})
 
     user = _extract_user(c.response)
@@ -217,7 +217,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             password=password,
         )
     except Exception as e:
-        error = "LDAP bind failed: %s" % e
+        error = f"LDAP bind failed: {e}"
         raise LDAPUserLoginError({"error_message": error})
 
     # Return user profile so that it can be used by Taiga,
