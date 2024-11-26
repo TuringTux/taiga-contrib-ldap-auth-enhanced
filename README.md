@@ -151,7 +151,7 @@ _You need to change most of the values to match your setup._
     LDAP_PORT = 389
     LDAP_START_TLS = True
     ```
-    What happens is that an unencrypted connection is established first, but then upgraded to a secure connection. To the best of my knowledge, this should also be safe – however, I like the `ldaps://` variant more.
+    What happens is that an unencrypted connection is established first, but then upgraded to a secure connection. This is [less secure](https://docs.redhat.com/de/documentation/red_hat_directory_server/12/html/securing_red_hat_directory_server/assembly_enabling-tls-encrypted-connections-to-directory-server_securing-rhds#assembly_enabling-tls-encrypted-connections-to-directory-server_securing-rhds) than `ldaps://` (see also [the related discussion for STARTTLS for emails](https://serverfault.com/questions/523804/is-starttls-less-safe-than-tls-ssl) or [this blog post](https://blog.apnic.net/2021/11/18/vulnerabilities-show-why-starttls-should-be-avoided-if-possible/)), because an attacker could strip the “upgrade to secure connection” request causing the connection to remain insecure. It is still safer than an unecrypted connection, of course.
 
 **`LDAP_BIND_DN`, `LDAP_BIND_PASSWORD`**: You will need to change them. 
 
