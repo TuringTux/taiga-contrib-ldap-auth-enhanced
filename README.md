@@ -22,7 +22,6 @@ If you were to start Taiga now, it would not pull the `taiga-back` directly from
 ```Dockerfile
 FROM taigaio/taiga-back:latest
 
-# Insert custom configuration into the taiga configuration file
 COPY config.append.py /taiga-back/settings
 RUN cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py && rm /taiga-back/settings/config.append.py
 
