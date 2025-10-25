@@ -11,14 +11,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.apps import AppConfig
+__version__ = (0, 5, 0)
 
-
-class TaigaContribLDAPAuthAppConfig(AppConfig):
-    name = "taiga_contrib_ldap_auth_ext"
-    verbose_name = "Taiga contrib ldap auth App Config"
-
-    def ready(self):
-        from taiga.auth.services import register_auth_plugin
-        from . import services
-        register_auth_plugin("ldap", services.ldap_login_func)
+default_app_config = "taiga_contrib_ldap_auth_enhanced.apps.TaigaContribLDAPAuthAppConfig"

@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from taiga_contrib_ldap_auth_ext import connector
+from taiga_contrib_ldap_auth_enhanced import connector
 from unittest.mock import patch, Mock
 
 import pytest
@@ -22,9 +22,9 @@ sys.path.append("../taiga-back/")
 
 def test_ldap_login_success():
     BASE_EMAIL = "@example.com"
-    with patch("taiga_contrib_ldap_auth_ext.connector.Server") as m_server, \
-            patch("taiga_contrib_ldap_auth_ext.connector.Connection") as m_connection, \
-            patch("taiga_contrib_ldap_auth_ext.connector.BASE_EMAIL", new=BASE_EMAIL):
+    with patch("taiga_contrib_ldap_auth_enhanced.connector.Server") as m_server, \
+            patch("taiga_contrib_ldap_auth_enhanced.connector.Connection") as m_connection, \
+            patch("taiga_contrib_ldap_auth_enhanced.connector.BASE_EMAIL", new=BASE_EMAIL):
         m_server.return_value = Mock()
         m_connection.return_value = Mock()
 

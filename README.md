@@ -115,7 +115,7 @@ If you use the installation with Docker, put something similar to the following 
 If you use the installation without Docker, append something similar to the following to the file `settings/common.py` (for Taiga >5.0) or `settings/local.py` (for Taiga ≤5.0):
 
 ```python
-INSTALLED_APPS += ["taiga_contrib_ldap_auth_ext"]
+INSTALLED_APPS += ["taiga_contrib_ldap_auth_enhanced"]
 
 # Multiple LDAP servers are currently not supported, see
 # https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/16
