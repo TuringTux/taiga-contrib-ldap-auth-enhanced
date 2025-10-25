@@ -215,7 +215,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             password=password,
         )
     except Exception as e:
-        raise LDAPUserLoginError({"error_message": f"Could not bind to LDAP (probably simply because of an incorrect password): {e}"})
+        raise LDAPUserLoginError({"error_message": f"Could not bind to LDAP as user (probably simply because of an incorrect password): {e}"})
 
     # Return user profile so that it can be used by Taiga,
     # e.g., to set the user's full name in the database
