@@ -1,16 +1,8 @@
-![PyPI - License](https://img.shields.io/pypi/l/taiga-contrib-ldap-auth-ext.svg)
-[![PyPI - Status](https://img.shields.io/pypi/status/taiga-contrib-ldap-auth-ext.svg)](https://pypi.org/project/taiga-contrib-ldap-auth-ext/)
-[![PyPI](https://img.shields.io/pypi/v/taiga-contrib-ldap-auth-ext.svg)](https://pypi.org/project/taiga-contrib-ldap-auth-ext/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/taiga-contrib-ldap-auth-ext.svg)](https://pypistats.org/packages/taiga-contrib-ldap-auth-ext)
-[![Managed with Taiga.io](https://img.shields.io/badge/managed%20with-TAIGA.io-709f14.svg)](https://tree.taiga.io/project/monogrammbot-monogrammtaiga-contrib-ldap-auth-ext/ "Managed with Taiga.io")
+# LDAP authentication for Taiga
 
-# Taiga contrib ldap auth ext
+This plugin adds LDAP authentication support to self-hosted instances of the project management tool [Taiga](https://taiga.io). It is a fork of [Monogramm/taiga-contrib-ldap-auth-ext](https://github.com/Monogramm/taiga-contrib-ldap-auth-ext), which is a fork of [ensky/taiga-contrib-ldap-auth](https://github.com/ensky/taiga-contrib-ldap-auth).
 
-Extended [Taiga.io](https://taiga.io/) plugin for LDAP authentication.
-
-This is a fork of [ensky/taiga-contrib-ldap-auth](https://github.com/ensky/taiga-contrib-ldap-auth), which also retrieves the various contributions and other forks into one.
-
-## :whale: Installation with Docker
+## 🐋 Installation with Docker
 
 If you installed a dockerized Taiga using the 30 Minute Setup approach, you should be able to install this plugin using this guide.
 
@@ -34,7 +26,7 @@ FROM taigaio/taiga-back:latest
 COPY config.append.py /taiga-back/settings
 RUN cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py && rm /taiga-back/settings/config.append.py
 
-RUN pip install taiga-contrib-ldap-auth-ext
+RUN pip install taiga-contrib-ldap-auth-enhanced
 ```
 
 <details>
@@ -80,19 +72,17 @@ The question is: How do you get a valid `conf.json`?
     ```
     You then have a valid, production-ready `conf.json` you can just extend by the entry mentioned above. I'd recommend this method.
 
-## :package: Installation without Docker
+## 📦 Installation without Docker
 
 ### Installation
 
-Install the PIP package `taiga-contrib-ldap-auth-ext` in your `taiga-back` python virtualenv:
+Install the PIP package `taiga-contrib-ldap-auth-enhanced` in your `taiga-back` python virtualenv:
 
 ```bash
-pip install taiga-contrib-ldap-auth-ext
+pip install taiga-contrib-ldap-auth-enhanced
 ```
 
 If needed, change `pip` to `pip3` to use the Python 3 version.
-
-For an even simpler installation, you can use our own Docker image: <https://github.com/Monogramm/docker-taiga>
 
 ### `taiga-back`
 
@@ -106,7 +96,7 @@ Change the `loginFormType` setting to `"ldap"` in `dist/conf.json`:
 "loginFormType": "ldap",
 ```
 
-## :wrench: Configuration
+## 🔧 Configuration
 
 ### `taiga-back` configuration
 
@@ -117,15 +107,15 @@ If you use the installation without Docker, append something similar to the foll
 ```python
 INSTALLED_APPS += ["taiga_contrib_ldap_auth_enhanced"]
 
-# Multiple LDAP servers are currently not supported, see
-# https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/16
 LDAP_SERVER = "ldaps://ldap.example.com"
 LDAP_PORT = 636
 
+# You can also use self-bind (without a dedicated bind account), expand
+# the explanation below for details.
 LDAP_BIND_DN = "CN=SVC Account,OU=Service Accounts,OU=Servers,DC=example,DC=com"
 LDAP_BIND_PASSWORD = "verysecurepassword"
 
-LDAP_SEARCH_BASE = 'OU=DevTeam,DC=example,DC=net'
+LDAP_SEARCH_BASE = "OU=DevTeam,DC=example,DC=net"
 
 LDAP_USERNAME_ATTRIBUTE = "uid"
 LDAP_EMAIL_ATTRIBUTE = "mail"
@@ -133,6 +123,8 @@ LDAP_FULL_NAME_ATTRIBUTE = "givenName"
 
 LDAP_SAVE_LOGIN_PASSWORD = False
 
+# You must include the following line (even though it seems trivial) in your
+# config to fix a bug. If you omit this, stuff breaks.
 LDAP_MAP_USERNAME_TO_UID = None
 ```
 
@@ -260,9 +252,18 @@ Group management via LDAP does not yet exist, see issues #15 and #17. However, t
 #LDAP_GROUP_ADMIN = 'OU=TaigaAdmin,DC=example,DC=net'
 ```
 
+Multiple LDAP servers are also not supported, see issue #16.
+
 </details>
 
-## :bulb: Further notes
+## ❓ Get Support
+
+* [Discuss this plugin on Taiga Community](https://community.taiga.io/t/integrate-an-ldap-account-database-with-taiga/212)
+* [File an issue on GitHub](https://github.com/TuringTux/taiga-contrib-ldap-auth-enhanced/issues)
+
+While I am trying my best to support you in setting up the plugin, I am afraid I sometimes take weeks to respond, so please do not get your hopes up.
+
+## 💡 Further notes
 
 * **Security recommendation**: The service account to perform the LDAP search should be configured to only allow reading/searching the LDAP structure. No other LDAP (or wider network) permissions should be granted for this user because you need to specify the service account password in the configuration file. A suitably strong password should be chosen, eg. `VmLYBbvJaf2kAqcrt5HjHdG6`.
 * If you are using the Taiga's built-in `USER_EMAIL_ALLOWED_DOMAINS` config option, all LDAP email addresses will still be filtered through this list. Ensure that if `USER_EMAIL_ALLOWED_DOMAINS` != `None`, that your corporate LDAP email domain is also listed there. This is due to the fact that LDAP users are automatically "registered" behind the scenes on their first login.
