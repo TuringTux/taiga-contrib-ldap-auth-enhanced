@@ -120,12 +120,12 @@ def _extract_user(response: Any) -> Any:
 
     # stop if no search results
     if not users_found:
-        raise LDAPUserLoginError({"error_message": "LDAP login not found"})
+        raise LDAPUserLoginError({"error_message": "Could not find a user with the given username."})
 
     # handle multiple matches
     if len(users_found) > 1:
         raise LDAPUserLoginError(
-            {"error_message": "LDAP login could not be determined."}
+            {"error_message": "Found more than one user with the given username, don't know how to choose."}
         )
 
     return users_found[0]
@@ -147,7 +147,7 @@ def _extract_profile(user: Any) -> Tuple[str, str, str]:
 
     for attribute in PROFILE_ATTRIBUTES:
         if not raw_attributes.get(attribute):
-            raise LDAPUserLoginError({"error_message": "LDAP login is invalid."})
+            raise LDAPUserLoginError({"error_message": f"LDAP response for user did not contain required attribute '{attribute}'. @admin: If you are certain the attribute exists, make sure the binding user may see it (check ACLs)."})
 
     return tuple(
         raw_attributes.get(attribute)[0].decode("utf-8")
@@ -182,8 +182,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             **_get_auth_details(username_or_email_sanitized, password),
         )
     except Exception as e:
-        error = f"Error connecting to LDAP server: {e}"
-        raise LDAPConnectionError({"error_message": error})
+        raise LDAPConnectionError({"error_message": f"Could not connect to the LDAP server: {e}"})
 
     # search for user-provided login
     search_filter = f"(|({USERNAME_ATTRIBUTE}={username_or_email_sanitized})({EMAIL_ATTRIBUTE}={username_or_email_sanitized}))"
@@ -198,8 +197,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             paged_size=5,
         )
     except Exception as e:
-        error = f"LDAP login incorrect: {e}"
-        raise LDAPUserLoginError({"error_message": error})
+        raise LDAPUserLoginError({"error_message": f"Searching for the given user failed (maybe your search filter is syntactically invalid): {e}"})
 
     user = _extract_user(c.response)
     user_profile = _extract_profile(user)
@@ -217,8 +215,7 @@ def login(username_or_email: str, password: str) -> Tuple[str, str, str]:
             password=password,
         )
     except Exception as e:
-        error = f"LDAP bind failed: {e}"
-        raise LDAPUserLoginError({"error_message": error})
+        raise LDAPUserLoginError({"error_message": f"Could not bind to LDAP as user (probably simply because of an incorrect password): {e}"})
 
     # Return user profile so that it can be used by Taiga,
     # e.g., to set the user's full name in the database
