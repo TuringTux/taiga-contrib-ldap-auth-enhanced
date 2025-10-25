@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='taiga-contrib-ldap-auth-enhanced',
-    version=":versiontools:taiga-contrib-ldap-auth-enhanced:",
+    version=":versiontools:taiga_contrib_ldap_auth_enhanced:",
     description="Enhaned Taiga plugin for LDAP authentication",
     long_description="Extended Taiga plugin for LDAP authentication. Fork of monogramm/taiga-contrib-ldap-auth-ext (which is a fork of ensky/taiga-contrib-ldap-auth) with several extensions.",
     keywords='taiga, ldap, auth, plugin',
