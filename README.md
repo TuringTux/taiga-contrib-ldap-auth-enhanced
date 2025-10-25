@@ -303,7 +303,17 @@ You should now see something like this:
 
 ![A screenshot of the Firefox developer tools. The “Network” tab is opened, and a single HTTPS request with status 400 is shown. The response JSON is opened for this request. It has a singular key "error_message" with the message "Error connecting to LDAP server: automatic bind not successful - invalidCredentials"](./docs/img/network_login_error.png)
 
-Have a look at `error_message`, it can help you figure out what is wrong.
+Have a look at `error_message`, it can help you figure out what is wrong:
+
+| Message | Explanation | Possible fix |
+| ------- | ----------- | ------------ |
+| “Could not connect to the LDAP server: ...” | Creating a connection to the LDAP server failed, so we could not even start a search for the user. | |
+| “Searching for the given user failed ...” | Could not even run a search for the given user. *Normally, this should never happen, even if there is no such user.* | If you have configured `LDAP_SEARCH_FILTER_ADDITIONAL`, check if it is syntactically valid. |
+| “Could not find a user with the given username.” | No user with the given username was found. | Maybe none (if the user doesn't exist, they don't exist). |
+| “Found more than one user with the given username ...” | More than one user was returned. *I don't know how that could ever happen.* | |
+| “LDAP response for user did not contain required attribute ...” | We found a single user with the given username (good), but we cannot get the required core data from the LDAP response. | Check that `LDAP_USERNAME_ATTRIBUTE`, `LDAP_EMAIL_ATTRIBUTE`, `LDAP_FULL_NAME_ATTRIBUTE` are set to the correctly named fields in your LDAP configuration. If they are, maybe the LDAP bind user for Taiga does not have permission to access these fields, check your ACLs on the LDAP server. <small>Source: https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/56#issuecomment-3370312830</small> |
+| “Could not bind to LDAP as user” | We tried to check the given password against LDAP, but the check failed. | Maybe none (if the password is wrong, this should fail). |
+
 
 The error message is produced by [`connector.py`](taiga_contrib_ldap_auth_enhanced/connector.py), so you should be able to trace the error back to the exact piece of code that produced it. Please include this error when filing a bug report, if possible.
 
