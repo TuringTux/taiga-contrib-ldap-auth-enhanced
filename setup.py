@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
+from pathlib import Path
+
+# See https://github.com/pypa/sampleproject/blob/db5806e0a3204034c51b1c00dde7d5eb3fa2532e/setup.py
+repo_dir = Path(__file__).parent
+long_description = (repo_dir / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='taiga-contrib-ldap-auth-enhanced',
     version=":versiontools:taiga_contrib_ldap_auth_enhanced:",
-    description="Enhaned Taiga plugin for LDAP authentication",
-    long_description="Extended Taiga plugin for LDAP authentication. Fork of monogramm/taiga-contrib-ldap-auth-ext (which is a fork of ensky/taiga-contrib-ldap-auth) with several extensions.",
+    description="LDAP authentication plugin for self-hosted Taiga.io project management instances",
+    long_description=long_description,
     keywords='taiga, ldap, auth, plugin',
     author='TuringTux',
     author_email='hi@turingtux.me',
