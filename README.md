@@ -262,6 +262,10 @@ Multiple LDAP servers are also not supported, see issue #16.
 
 While I am trying my best to support you in setting up the plugin, I am afraid I sometimes take weeks to respond, so please do not get your hopes up.
 
+## 🩺 Troubleshooting
+
+<!-- TODO -->
+
 ## 💡 Further notes
 
 * **Security recommendation**: The service account to perform the LDAP search should be configured to only allow reading/searching the LDAP structure. No other LDAP (or wider network) permissions should be granted for this user because you need to specify the service account password in the configuration file. A suitably strong password should be chosen, eg. `VmLYBbvJaf2kAqcrt5HjHdG6`.
