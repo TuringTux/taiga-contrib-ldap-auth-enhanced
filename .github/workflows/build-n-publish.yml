@@ -1,7 +1,13 @@
 # https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 name: Build and Publish Python distributions
 
-on: push
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+      - master
 
 jobs:
   build:
