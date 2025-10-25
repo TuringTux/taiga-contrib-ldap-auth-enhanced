@@ -314,8 +314,58 @@ Have a look at `error_message`, it can help you figure out what is wrong:
 | “LDAP response for user did not contain required attribute ...” | We found a single user with the given username (good), but we cannot get the required core data from the LDAP response. | Check that `LDAP_USERNAME_ATTRIBUTE`, `LDAP_EMAIL_ATTRIBUTE`, `LDAP_FULL_NAME_ATTRIBUTE` are set correctly in your config. If they are, maybe the LDAP bind user for Taiga does not have permission to access these fields, check your ACLs on the LDAP server. <small>Source: https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/56#issuecomment-3370312830</small> |
 | “Could not bind to LDAP as user” | We tried to check the given password against LDAP, but the check failed. | Maybe none (if the password is wrong, this should fail). |
 
-
 The error message is produced by [`connector.py`](taiga_contrib_ldap_auth_enhanced/connector.py), so you should be able to trace the error back to the exact piece of code that produced it. Please include this error when filing a bug report, if possible.
+
+### Test backend only
+
+It can be helpful to test if the backend works independently of the frontend (if so, the bug lies in the frontend configuration). To do so, you can run the following script (save it to `taiga_login.py`) **on your local computer** (replacing `https://yourtaigaurl.example` with your Taiga URL):
+
+```python
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["requests"]
+# ///
+
+import requests
+from getpass import getpass
+
+TAIGA_BASE="https://yourtaigaurl.example"
+
+r = requests.post(
+    f"{TAIGA_BASE}/api/v1/auth",
+    json={
+        "type": "ldap",
+        "username": input("Username: "),
+        "password": getpass(),
+    },
+)
+
+print(r.status_code)
+print(r.json())
+```
+
+If you have [`uv`](https://docs.astral.sh/uv/) installed, which I can highly recommend (it is a good package manager), you should be able to run it like this:
+
+```bash
+chmod +x taiga_login.py
+./taiga_login.py
+```
+
+Otherwise, you need to do something like:
+
+```bash
+# (create a virtual environment if you want to)
+pip install requests
+python taiga_login.py
+```
+
+If you enter the correct credentials and it prints a status code of 200, but you can still not log in to Taiga, the problem is on the front-end side.
+
+If you get an error message, you can use the table from the previous section to debug the backend problem.
+
+<small>Source: https://community.taiga.io/t/taiga-6-ldap-accounts-are-not-created/3497</small>
 
 ## 💡 Further notes
 
