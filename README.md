@@ -264,7 +264,29 @@ While I am trying my best to support you in setting up the plugin, I am afraid I
 
 ## 🩺 Troubleshooting
 
-<!-- TODO -->
+### ModuleNotFoundError: No module named 'taiga_contrib_ldap_auth_enhanced'
+
+This error is most likely caused by a typo or caching:
+
+1. The repository and the PyPI library is named `taiga-contrib-ldap-auth-enhanced` (with dashes: `-`)
+2. The plugin and Python package are named `taiga_contrib_ldap_auth_enhanced` (with underscores: `_`)
+
+Make sure you use the right characters in the right places (and in all places), namely:
+
+1. `taiga-contrib-ldap-auth-enhanced` is used in the `Dockerfile` for `pip install`
+2. `taiga_contrib_ldap_auth_enhanced` is used in the `config.append.py`
+
+This plugin is a fork of the plugin whose name ends is `taiga_contrib_ldap_auth_ext` (or `taiga-contrib-ldap-auth-ext`, respectively). Make sure you don't mix these up.
+
+If you use Docker and you are sure you've written everything correctly, recreate them freshly (to make sure the old name is not still in some cache somewhere):
+
+```bash
+docker compose rm -f
+docker compose pull
+docker compose up --build
+```
+
+<small>Source: https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/49#issuecomment-1263268720</small>
 
 ## 💡 Further notes
 
