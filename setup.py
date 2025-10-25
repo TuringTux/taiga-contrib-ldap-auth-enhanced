@@ -14,7 +14,7 @@ setup(
     url='https://github.com/TuringTux/taiga-contrib-ldap-auth-enhanced',
     license='AGPL',
     include_package_data=True,
-    packages=find_packages(),
+    packages=["taiga_contrib_ldap_auth_enhanced"],
     install_requires=[
         'django >= 1.7',
         'ldap3 >= 0.9.8.4'
