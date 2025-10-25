@@ -4,15 +4,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='taiga-contrib-ldap-auth-ext',
-    version=":versiontools:taiga_contrib_ldap_auth_ext:",
-    description="The (extended) Taiga plugin for ldap authentication",
-    long_description="Extended Taiga.io plugin for LDAP authentication. This is a fork of ensky/taiga-contrib-ldap-auth which also retrieves the various contributions and other forks into one.",
-    download_url='https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/archive/v0.5.0.tar.gz',
+    name='taiga-contrib-ldap-auth-enhanced',
+    version=":versiontools:taiga-contrib-ldap-auth-enhanced:",
+    description="Enhaned Taiga plugin for LDAP authentication",
+    long_description="Extended Taiga plugin for LDAP authentication. Fork of monogramm/taiga-contrib-ldap-auth-ext (which is a fork of ensky/taiga-contrib-ldap-auth) with several extensions.",
     keywords='taiga, ldap, auth, plugin',
-    author='Monogramm',
-    author_email='opensource@monogramm.io',
-    url='https://github.com/Monogramm/taiga-contrib-ldap-auth-ext',
+    author='TuringTux',
+    author_email='hi@turingtux.me',
+    url='https://github.com/TuringTux/taiga-contrib-ldap-auth-enhanced',
     license='AGPL',
     include_package_data=True,
     packages=find_packages(),
