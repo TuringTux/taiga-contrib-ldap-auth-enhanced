@@ -262,6 +262,51 @@ Multiple LDAP servers are also not supported, see issue #16.
 
 While I am trying my best to support you in setting up the plugin, I am afraid I sometimes take weeks to respond, so please do not get your hopes up.
 
+## 🩺 Troubleshooting
+
+### ModuleNotFoundError: No module named 'taiga_contrib_ldap_auth_enhanced'
+
+This error is most likely caused by a typo or caching:
+
+1. The repository and the PyPI library is named `taiga-contrib-ldap-auth-enhanced` (with dashes: `-`)
+2. The plugin and Python package are named `taiga_contrib_ldap_auth_enhanced` (with underscores: `_`)
+
+Make sure you use the right characters in the right places (and in all places), namely:
+
+1. `taiga-contrib-ldap-auth-enhanced` is used in the `Dockerfile` for `pip install`
+2. `taiga_contrib_ldap_auth_enhanced` is used in the `config.append.py`
+
+This plugin is a fork of the plugin whose name ends is `taiga_contrib_ldap_auth_ext` (or `taiga-contrib-ldap-auth-ext`, respectively). Make sure you don't mix these up.
+
+If you use Docker and you are sure you've written everything correctly, recreate them freshly (to make sure the old name is not still in some cache somewhere):
+
+```bash
+docker compose rm -f
+docker compose pull
+docker compose up --build
+```
+
+<small>Source: https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/49#issuecomment-1263268720</small>
+
+### Login does not work, even though the username and password are correct
+
+To debug this, we need to have a look at the network logs. To do so:
+
+1. Open the login page of your Taiga instance (but don't log in yet)
+2. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>. A developer tools pane should open in the lower half window (at least in Firefox).
+3. Switch to the “Network“ tab
+4. Now login.
+5. An entry should appear in the analysis log, probably with an HTTP status code 400.
+6. Click on this entry. In the right half of the developer tools pane, click on “Response”.
+
+You should now see something like this:
+
+![A screenshot of the Firefox developer tools. The “Network” tab is opened, and a single HTTPS request with status 400 is shown. The response JSON is opened for this request. It has a singular key "error_message" with the message "Error connecting to LDAP server: automatic bind not successful - invalidCredentials"](./docs/img/network_login_error.png)
+
+Have a look at `error_message`, it can help you figure out what is wrong.
+
+The error message is produced by [`connector.py`](taiga_contrib_ldap_auth_enhanced/connector.py), so you should be able to trace the error back to the exact piece of code that produced it. Please include this error when filing a bug report, if possible.
+
 ## 💡 Further notes
 
 * **Security recommendation**: The service account to perform the LDAP search should be configured to only allow reading/searching the LDAP structure. No other LDAP (or wider network) permissions should be granted for this user because you need to specify the service account password in the configuration file. A suitably strong password should be chosen, eg. `VmLYBbvJaf2kAqcrt5HjHdG6`.
