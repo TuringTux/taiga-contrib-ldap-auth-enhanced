@@ -13,6 +13,7 @@ setup(
     version=":versiontools:taiga_contrib_ldap_auth_enhanced:",
     description="LDAP authentication plugin for self-hosted Taiga.io project management instances",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     keywords='taiga, ldap, auth, plugin',
     author='TuringTux',
     author_email='hi@turingtux.me',
