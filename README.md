@@ -257,10 +257,14 @@ Multiple LDAP servers are also not supported, see issue #16.
 
 ## ❓ Get Support
 
-* [Discuss this plugin on Taiga Community](https://community.taiga.io/t/integrate-an-ldap-account-database-with-taiga/212)
+* [Ask a question on Taiga Community with tag `ldap` in the “Troubleshooting” category](https://community.taiga.io/tag/ldap)
 * [File an issue on GitHub](https://github.com/TuringTux/taiga-contrib-ldap-auth-enhanced/issues)
 
-While I am trying my best to support you in setting up the plugin, I am afraid I sometimes take weeks to respond, so please do not get your hopes up.
+While I am trying my best to support you in setting up the plugin, I am afraid I sometimes take weeks to respond, so please do not get your hopes up. I receive automatic notifications about every post tagged `ldap` on Taiga Community and about every issue on GitHub, so you can choose your preferred channel.
+
+You can also:
+
+* [Read previous discussion of this plugin on Taiga Community](https://community.taiga.io/t/integrate-an-ldap-account-database-with-taiga/212)
 
 ## 🩺 Troubleshooting
 
@@ -314,7 +318,7 @@ Have a look at `error_message`, it can help you figure out what is wrong:
 | “LDAP response for user did not contain required attribute ...” | We found a single user with the given username (good), but we cannot get the required core data from the LDAP response. | Check that `LDAP_USERNAME_ATTRIBUTE`, `LDAP_EMAIL_ATTRIBUTE`, `LDAP_FULL_NAME_ATTRIBUTE` are set correctly in your config. If they are, maybe the LDAP bind user for Taiga does not have permission to access these fields, check your ACLs on the LDAP server. <small>Source: https://github.com/Monogramm/taiga-contrib-ldap-auth-ext/issues/56#issuecomment-3370312830</small> |
 | “Could not bind to LDAP as user” | We tried to check the given password against LDAP, but the check failed. | Maybe none (if the password is wrong, this should fail). |
 
-The error message is produced by [`connector.py`](taiga_contrib_ldap_auth_enhanced/connector.py), so you should be able to trace the error back to the exact piece of code that produced it. Please include this error when filing a bug report, if possible.
+The error message is produced by [`connector.py`](https://github.com/TuringTux/taiga-contrib-ldap-auth-enhanced/blob/master/taiga_contrib_ldap_auth_enhanced/connector.py), so you should be able to trace the error back to the exact piece of code that produced it. Please include this error when filing a bug report, if possible.
 
 ### Test backend only
 
